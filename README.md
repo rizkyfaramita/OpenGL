@@ -1,17 +1,15 @@
 # OpenGL Mouse Programming
 
-## Usage
-
-Clone the repository, or download the zip file of the release you would like to use. The source code is available in src folder. 
+## Usage 
 
 To compile, use:
-```bash
-gcc -o mouse mouse.c -lX11 -lGL -lGLU
+```
+make
 ```
 
 To run, use:
 ```bash
-./mouse
+./t<1|2|3>
 ```
 
 ## Reference
@@ -20,7 +18,11 @@ To run, use:
 [1] ShellWaveX: OpenGL programming example on how to create an object, such as square, to follow the mouse pointer or cursor using OpenGL Extension (GLX) and Xlib for the X Window System.
 URL: https://www.youtube.com/watch?v=ONcqtmHAW3g
 ```
+```
+[2] OpenGL Compelete Tutorial to Run Files
+URL: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/
+```
 
 ## Disclaimer
 
-This repository is being used for IF3240 Computer Graphics task inquiry.
+This repository is being used for IF3240 Computer Graphics task.
