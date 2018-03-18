@@ -1,6 +1,5 @@
 // Include standard headers
-#include <stdio.h>
-#include <stdlib.h>
+#include <bits/stdc++.h>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -14,6 +13,15 @@ GLFWwindow* window;
 using namespace glm;
 
 #include <common/shader.hpp>
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+}
+
+void processInput(GLFWwindow *window) {
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
 
 int main( void )
 {
@@ -61,9 +69,8 @@ int main( void )
    glBindVertexArray(VertexArrayID);
 
    // Create and compile our GLSL program from the shaders
-   GLuint programID = LoadShaders( "SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
-
-
+   //GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
+   GLuint programID = glCreateShader(GL_VERTEX_SHADER);
    static const GLfloat g_vertex_buffer_data[] = { 
       -1.0f, -1.0f, 0.0f,
        1.0f, -1.0f, 0.0f,

@@ -1,4 +1,4 @@
 all: compile
 
 compile:
-	g++ -o main t2.c -lX11 -lGL -lGLU -I/usr/local/include/glm
+	g++ src/t3.cpp -o bin/t3 -lglfw -lGLEW -lGL
