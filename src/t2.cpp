@@ -40,7 +40,7 @@ int main( void )
    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
    // Open a window and create its OpenGL context
-   window = glfwCreateWindow( 1024, 768, "Tutorial 02 - Red triangle", NULL, NULL);
+   window = glfwCreateWindow( 1024, 768, "T2 (One-coloured Triangle)", NULL, NULL);
    if( window == NULL ){
       fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
       getchar();
@@ -61,29 +61,59 @@ int main( void )
    // Ensure we can capture the escape key being pressed below
    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-   // Dark blue background
-   glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+   // White background
+   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
    GLuint VertexArrayID;
    glGenVertexArrays(1, &VertexArrayID);
    glBindVertexArray(VertexArrayID);
 
    // Create and compile our GLSL program from the shaders
-   //GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
+   // GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
    GLuint programID = glCreateShader(GL_VERTEX_SHADER);
    static const GLfloat g_vertex_buffer_data[] = { 
-      -1.0f, -1.0f, 0.0f,
-       1.0f, -1.0f, 0.0f,
-       0.0f,  1.0f, 0.0f,
+      -0.75f, -0.75f, 0.0f,
+       0.75f, -0.75f, 0.0f,
+       0.0f,  0.75f, 0.0f,
    };
+
+    const char* vertexShaderSourceCode = "\n"
+    "    #version 330 core\n"
+    "    layout (location = 0) in vec3 aPos;\n"
+    "    void main() {\n"
+    "        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "    }\n";
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSourceCode, NULL);
+    glCompileShader(vertexShader);
+    const char* fragmentShaderSourceCode = "\n"
+    "    #version 330 core\n"
+    "   out vec4 FragColor;\n"
+    "   void main() {\n"
+    "       FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   }\n";
+
+   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+   glShaderSource(fragmentShader, 1, &fragmentShaderSourceCode, NULL);
+   glCompileShader(fragmentShader);
+   GLuint shaderProgram = glCreateProgram();
+   glAttachShader(shaderProgram, vertexShader);
+   glAttachShader(shaderProgram, fragmentShader);
+   glLinkProgram(shaderProgram);
 
    GLuint vertexbuffer;
    glGenBuffers(1, &vertexbuffer);
+   GLuint vertexarray;
+   glGenVertexArrays(1, &vertexarray);
+   glBindVertexArray(vertexarray);
    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+   glEnableVertexAttribArray(0);
+   glUseProgram(shaderProgram);
+   glBindVertexArray(vertexarray);
 
    do{
-
       // Clear the screen
       glClear( GL_COLOR_BUFFER_BIT );
 
