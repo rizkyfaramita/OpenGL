@@ -1,4 +1,4 @@
-# OpenGL Mouse Programming
+# OpenGL
 
 ## Usage 
 
@@ -9,7 +9,7 @@ make
 
 To run, use:
 ```bash
-./t<1|2|3>
+bin/t<1|2|3>
 ```
 
 ## Reference
