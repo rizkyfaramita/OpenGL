@@ -1,6 +1,7 @@
 #include <GL/glut.h>    // Header File For The GLUT Library 
 #include <GL/gl.h>    // Header File For The OpenGL32 Library
 #include <GL/glu.h>    // Header File For The GLu32 Library
+#include <math.h>
 //#include <unistd.h>     // Header File For sleeping.
 
 /* ASCII code for the escape key. */
@@ -11,6 +12,10 @@ int window;
 
 /* rotation angle for the triangle. */
 float rtri = 0.0f;
+
+/* rotation angle for the tires */
+float rtr1 = 0.0f;
+float rtr2 = 0.0f;
 
 /* rotation angle for the quadrilateral. */
 float rquad = 0.0f;
@@ -54,17 +59,18 @@ float ballY = 0.0f;
 float ballZ = 0.0f;
 
 void drawBall(void) {
-        glColor3f(0.0, 1.0, 0.0); //set ball colour
+        glColor3f(1.0, 1.0, 0.0); //set ball colour
 
         glTranslatef(ballX,ballY,ballZ); //moving it toward the screen a bit on creation
-        // glRotatef    (10, 0,0,1);        //glRotatef(ballX,ballX,ballY,ballZ);
+        glRotatef    (rtr1, ballX,ballY,ballZ);        //glRotatef(ballX,ballX,ballY,ballZ);
+        rtr1 += 0.005f;
         glutSolidSphere (0.3, 20, 20); //create ball.
 
         glTranslatef(ballX + 1.5,ballY,ballZ); //moving it toward the screen a bit on creation
-        // glRotatef    (10, 0,0,1); 
+        glRotatef    (rtr2, ballX + 1.5,ballY,ballZ); 
+        rtr2 += 0.005f;
         glutSolidSphere (0.3, 20, 20); //
 }
-
 
 /* The main drawing function. */
 void DrawGLScene()
@@ -98,7 +104,7 @@ void DrawGLScene()
   // rtri+=0.005f;                    // Increase The Rotation Variable For The Triangle
   // if(rtri>2)
   //     rtri=-2.0f;
-  // rquad-=5.0f;                    // Decrease The Rotation Variable For The Quad
+                      // Decrease The Rotation Variable For The Quad
 
   // swap the buffers to display, since double buffering is used.
   glutSwapBuffers();
