@@ -43,8 +43,8 @@ int main( void )
     
    GLfloat vertices[] = {
         half_screen_width, half_screen_height + half_side_length, 0.0, // top center vertex
-        half_screen_width - half_side_length * 1.2, half_screen_height - half_side_length, 0.0, // bottom left corner
-        half_screen_width + half_side_length * 1.2, half_screen_height - half_side_length, 0.0 // bottom right corner
+        half_screen_width - half_side_length, half_screen_height - half_side_length, 0.0, // bottom left corner
+        half_screen_width + half_side_length, half_screen_height - half_side_length, 0.0 // bottom right corner
    };
     
    GLfloat colour[] = {
@@ -57,7 +57,7 @@ int main( void )
    while (!glfwWindowShouldClose(window)) {
       glClear(GL_COLOR_BUFFER_BIT);
       // White background
-      glClearColor(1.0f, 1.0f, 1.0f, 1.0f);        
+      glClearColor(0.0f, 0.0f, 0.0f, 0.0f);        
       
       // Render OpenGL here
       glEnableClientState(GL_VERTEX_ARRAY); // tell OpenGL that you're using a vertex array for fixed-function attribute
