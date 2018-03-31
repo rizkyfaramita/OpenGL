@@ -90,7 +90,7 @@ void DrawGLScene()
   glVertex3f(1.0f, 0.4f, 0.0f);
   
   glColor3f(0.0f,1.0f,0.0f);            // Set The Color To Green
-  glVertex3f( 1.0f,0.0f, 0.0f);        // Bottom Right
+  glVertex3f(1.0f,0.0f, 0.0f);        // Bottom Right
   glColor3f(0.0f,0.0f,1.0f);            // Set The Color To Blue
   glVertex3f(-1.0f,0.0f, 0.0f);// Bottom Left    
 
