@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
         float ratio = vp[2] * 1.0 / vp[3];
 
         // set projection matrix
-        glm::mat4 projection = glm::perspective(glm::radians(30.0f), ratio, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(30.0f), ratio, 35.0f, 200.0f);
 
         // set model matrix
         glm::mat4 rotation = glm::rotate(glm::mat4(), (float) glfwGetTime() * 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
