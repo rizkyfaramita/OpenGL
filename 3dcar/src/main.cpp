@@ -16,14 +16,16 @@ double clickedX = 0.0;
 double clickedY = 0.0;
 double rotateX = 0.0;
 double rotateY = 0.0;
+double posX = 0.0;
+double posY = 0.0;
+bool modelRotation = true;
+float modelRotationAngle = 0.0;
+float frontOffset = 0.0;
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-
-void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 // screen settings
 const unsigned int SCR_WIDTH = 1024;
@@ -32,12 +34,11 @@ const unsigned int SCR_HEIGHT = 768;
 // Camera, Mouse, and Scroll
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
 
 int main(int argc, char** argv) {
 	// init window
     if (!glfwInit()) {
-        fprintf(stderr, "failed to initialize glfw\n");
+        fprintf(stderr, "Failed to initialize glfw\n");
         exit(-1);
     }
 
@@ -57,7 +58,7 @@ int main(int argc, char** argv) {
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
-    glfwSetScrollCallback(window, scrollCallback);
+    glfwSetKeyCallback(window, keyCallback);
     glfwMakeContextCurrent(window);
 
     glewExperimental = true;
@@ -75,7 +76,7 @@ int main(int argc, char** argv) {
     Model model("data/car.obj");
 
     while(!glfwWindowShouldClose(window)) {
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // set view matrix
@@ -87,9 +88,13 @@ int main(int argc, char** argv) {
 
         // set | rotation
         glm::mat4 cameraRotationY = glm::rotate(glm::mat4(), (float) glm::radians((float) -rotateY/1.0), cameraUp);
-        cameraPosition = glm::vec3(cameraRotationY * glm::vec4(cameraPosition, 1.0));
+        cameraPosition = glm::vec3(cameraRotationY * glm::vec4(cameraPosition, 10.0));
         cameraDirection = glm::normalize(cameraTarget - cameraPosition);
         cameraRight = glm::cross(cameraDirection, cameraUp);
+
+
+        // set front offset
+        cameraPosition += (float) frontOffset * cameraDirection;
 
         // set - rotation
         glm::mat4 cameraRotationX = glm::rotate(glm::mat4(), (float) glm::radians((float) -rotateX/1.0), cameraRight);
@@ -104,12 +109,10 @@ int main(int argc, char** argv) {
         glGetIntegerv(GL_VIEWPORT, vp);
         float ratio = vp[2] * 1.0 / vp[3];
 
-        // set projection matrix
+        // set projection maDOWNtrix
         glm::mat4 projection = glm::perspective(glm::radians(30.0f), ratio, 35.0f, 200.0f);
-
-        // set model matrix
-        glm::mat4 rotation = glm::rotate(glm::mat4(), (float) glfwGetTime() * 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-
+        glm::mat4 rotation = glm::rotate(glm::mat4(), modelRotationAngle * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+        
         shader.use();
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
@@ -121,6 +124,10 @@ int main(int argc, char** argv) {
     }
     glfwTerminate();
     return 0;
+}
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
@@ -135,37 +142,36 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
-    static double offsetX = 0.0;
-    static double offsetY = 0.0;
     if (mouseClicked) {
-        rotateY = offsetY + xpos - clickedX;
-        rotateX = offsetX + ypos - clickedY;
-    } else {
-        offsetX = rotateX;
-        offsetY = rotateY;
+        rotateY = xpos - clickedX;
+        rotateX = ypos - clickedY;
     }
 }
 
-void keyboardCallback(GLFWwindow* window, double xpos, double ypos) {
-    static double offsetX = 0.0;
-    static double offsetY = 0.0;
-    // // up button pressed
-    // if (mouseClicked) {
-    //     rotateY = offsetY + xpos - clickedX;
-    //     rotateX = offsetX + ypos - clickedY;
-    // // right button pressed
-    // } else if () {
-    //     offsetX = rotateX;
-    //     offsetY = rotateY;
-    // // bottom button pressed
-    // } else if () {
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    static bool up_pressed = false;
+    static bool right_pressed = false;
+    static bool down_pressed = false;
+    static bool left_pressed = false;
 
-    // // left button pressed
-    // } else if () {
-        
-    // }
-}
+    if (key == GLFW_KEY_UP)
+        up_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : up_pressed);
+    if (key == GLFW_KEY_RIGHT)
+        right_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : right_pressed);
+    if (key == GLFW_KEY_DOWN)
+        down_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : down_pressed);
+    if (key == GLFW_KEY_LEFT)
+        left_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : left_pressed);
+    
+    if (up_pressed)
+        rotateX += 2.0;
+    if (right_pressed)
+        rotateY += 2.0;
+    if (down_pressed)
+        rotateX += 2.0;
+    if (left_pressed)
+        rotateY -= 2.0;
 
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-    printf("Scroll is working\n");
-}
+    if (action == GLFW_PRESS)
+        modelRotation = !modelRotation;
+} 
