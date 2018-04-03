@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
         glm::mat4 projection = glm::perspective(glm::radians(30.0f), ratio, 0.1f, 100.0f);
 
         // set model matrix
-        glm::mat4 rotation = glm::rotate(glm::mat4(), (float) glfwGetTime() * -0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 rotation = glm::rotate(glm::mat4(), (float) glfwGetTime() * 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         shader.use();
         shader.setMat4("projection", projection);
@@ -149,21 +149,21 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 void keyboardCallback(GLFWwindow* window, double xpos, double ypos) {
     static double offsetX = 0.0;
     static double offsetY = 0.0;
-    // up button pressed
-    if (mouseClicked) {
-        rotateY = offsetY + xpos - clickedX;
-        rotateX = offsetX + ypos - clickedY;
-    // right button pressed
-    } else if () {
-        offsetX = rotateX;
-        offsetY = rotateY;
-    // bottom button pressed
-    } else if () {
+    // // up button pressed
+    // if (mouseClicked) {
+    //     rotateY = offsetY + xpos - clickedX;
+    //     rotateX = offsetX + ypos - clickedY;
+    // // right button pressed
+    // } else if () {
+    //     offsetX = rotateX;
+    //     offsetY = rotateY;
+    // // bottom button pressed
+    // } else if () {
 
-    // left button pressed
-    } else if () {
+    // // left button pressed
+    // } else if () {
         
-    }
+    // }
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
