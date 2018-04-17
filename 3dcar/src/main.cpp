@@ -32,8 +32,8 @@ const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
 // Camera, Mouse, and Scroll
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
+float lastX = SCR_WIDTH;
+float lastY = SCR_HEIGHT;
 
 int main(int argc, char** argv) {
 	// init window
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     Model model("data/car.obj");
 
     while(!glfwWindowShouldClose(window)) {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // set view matrix
@@ -88,13 +88,13 @@ int main(int argc, char** argv) {
 
         // set | rotation
         glm::mat4 cameraRotationY = glm::rotate(glm::mat4(), (float) glm::radians((float) -rotateY/1.0), cameraUp);
-        cameraPosition = glm::vec3(cameraRotationY * glm::vec4(cameraPosition, 10.0));
+        cameraPosition = glm::vec3(cameraRotationY * glm::vec4(cameraPosition, 20.0));
         cameraDirection = glm::normalize(cameraTarget - cameraPosition);
         cameraRight = glm::cross(cameraDirection, cameraUp);
 
 
         // set front offset
-        cameraPosition += (float) frontOffset * cameraDirection;
+        cameraPosition +=  (float) frontOffset * cameraDirection;
 
         // set - rotation
         glm::mat4 cameraRotationX = glm::rotate(glm::mat4(), (float) glm::radians((float) -rotateX/1.0), cameraRight);
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
         float ratio = vp[2] * 1.0 / vp[3];
 
         // set projection maDOWNtrix
-        glm::mat4 projection = glm::perspective(glm::radians(30.0f), ratio, 35.0f, 200.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(10.0f), ratio, 35.0f, 200.0f);
         glm::mat4 rotation = glm::rotate(glm::mat4(), modelRotationAngle * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         
         shader.use();
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
         shader.setMat4("view", view);
         shader.setMat4("model", rotation);
         model.Draw(shader);
-
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
