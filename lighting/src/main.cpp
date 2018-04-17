@@ -21,6 +21,7 @@ double posY = 0.0;
 bool modelRotation = true;
 float modelRotationAngle = 0.0;
 float frontOffset = 0.0;
+float light_temp = 0.0f;
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
@@ -48,7 +49,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT, "LIGHTING", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT, "Lighting", NULL, NULL);
     if(!window){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         glfwTerminate();
@@ -118,10 +119,10 @@ int main(int argc, char** argv) {
         shader.setMat4("view", view);
         shader.setMat4("model", rotation);
 
+        // set lighting
         glm::vec3 lightSource = glm::vec3(0.0f, 0.0f, 10.0f);
-        glm::mat4 lightRotation = glm::rotate(glm::mat4(), (float) glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
-        lightSource = glm::vec3(lightRotation * glm::vec4(lightSource, 0.0f));
-        glfwSetKeyCallback(window, keyCallback);
+        glm::mat4 lightRotation = glm::rotate(glm::mat4(), (float) glfwGetTime(), glm::vec3(light_temp));
+        lightSource = glm::vec3(lightRotation * glm::vec4(lightSource, light_temp));
         shader.setFloat("material.shininess", 128.0f);
         shader.setVec3("light.position", lightSource);
         shader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
@@ -189,8 +190,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         enter_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : enter_pressed);
 
     if (enter_pressed){
-        glm::mat4 lightRotation = glm::rotate(glm::mat4(), (float) glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
-    } else {
-        glm::mat4 lightRotation = glm::rotate(glm::mat4(), (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 0.0f));        
+        light_temp = 1.0f;
+    } else if (!enter_pressed) {
+        light_temp = 0.0f;
     } 
 }
