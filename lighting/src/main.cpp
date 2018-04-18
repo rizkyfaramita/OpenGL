@@ -22,6 +22,7 @@ bool modelRotation = true;
 float modelRotationAngle = 0.0;
 float frontOffset = 0.0;
 float light_temp = 0.0f;
+float lum = 0.0f;
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
@@ -123,9 +124,9 @@ int main(int argc, char** argv) {
         glm::vec3 lightSource = glm::vec3(0.0f, 0.0f, 10.0f);
         glm::mat4 lightRotation = glm::rotate(glm::mat4(), (float) 500, glm::vec3(light_temp));
         lightSource = glm::vec3(lightRotation * glm::vec4(lightSource, light_temp));
-        shader.setFloat("material.shininess", 128.0f);
+        shader.setFloat("material.shininess", 1.0f);
         shader.setVec3("light.position", lightSource);
-        shader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
+        shader.setVec3("light.diffuse", lum, lum, lum);
 
         model.Draw(shader);
 
@@ -164,6 +165,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     static bool down_pressed = false;
     static bool left_pressed = false;
     static bool enter_pressed = false;
+    static bool w_pressed = false;
+    static bool d_pressed = false;
 
     if (key == GLFW_KEY_UP)
         up_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : up_pressed);
@@ -173,6 +176,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         down_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : down_pressed);
     if (key == GLFW_KEY_LEFT)
         left_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : left_pressed);
+    if (key == GLFW_KEY_W)
+        w_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : left_pressed);
+    if (key == GLFW_KEY_D)
+        d_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : left_pressed);
     
     if (up_pressed)
         rotateX -= 2.0;
@@ -189,9 +196,20 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_ENTER)
         enter_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : enter_pressed);
 
-    if (enter_pressed){
-        light_temp = 1.0f;
-    } else if (!enter_pressed) {
-        light_temp = 0.0f;
+    if (enter_pressed || w_pressed){
+        light_temp = lum;
+        lum += 1;
+        if (lum >= 10.f){
+            lum = 10.f;
+        }
+        cout << "added " <<  lum << " " << endl;
     } 
+    if (d_pressed){
+        light_temp = lum;
+        lum -= 1;
+        if (lum <= 0.f){
+            lum = 0.f;
+        }
+        cout << "subtract " <<  lum << " " << endl;        
+    }
 }
