@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
 
         // set lighting
         glm::vec3 lightSource = glm::vec3(0.0f, 0.0f, 10.0f);
-        glm::mat4 lightRotation = glm::rotate(glm::mat4(), (float) glfwGetTime(), glm::vec3(light_temp));
+        glm::mat4 lightRotation = glm::rotate(glm::mat4(), (float) 500, glm::vec3(light_temp));
         lightSource = glm::vec3(lightRotation * glm::vec4(lightSource, light_temp));
         shader.setFloat("material.shininess", 128.0f);
         shader.setVec3("light.position", lightSource);
