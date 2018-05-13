@@ -202,7 +202,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if (lum >= 10.f){
             lum = 10.f;
         }
-        cout << "added " <<  lum << " " << endl;
     } 
     if (d_pressed){
         light_temp = lum;
@@ -210,6 +209,5 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if (lum <= 0.f){
             lum = 0.f;
         }
-        cout << "subtract " <<  lum << " " << endl;        
     }
 }
