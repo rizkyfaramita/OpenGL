@@ -74,6 +74,9 @@ const int MaxParticlesSmoke = 100000;
 Particle ParticlesContainerSmoke[MaxParticlesSmoke];
 int LastUsedParticleSmoke = 0;
 
+bool raining = false;
+bool exhausting = false;
+
 // Finds a Particle in ParticlesContainerRain which isn't used yet.
 // (i.e. life < 0);
 int FindUnusedParticleRain(){
@@ -150,6 +153,10 @@ int main( void )
         return -1;
     }
 
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetKeyCallback(window, keyCallback);
     glfwMakeContextCurrent(window);
 
     // Initialize GLEW
@@ -301,6 +308,7 @@ int main( void )
         int newparticlesRain = CurrentParticlesRain/ (int)(3.5f/delta);
         if (newparticlesRain > (int)(0.016f*10000.0))
             newparticlesRain = (int)(0.016f*10000.0);
+        if (!raining) newparticlesRain = 0;
         
         for (int i = 0; i < newparticlesRain; i++){
             int particleIndexRain = FindUnusedParticleRain();
@@ -464,16 +472,14 @@ int main( void )
         glDisableVertexAttribArray(2);
 
         countParticlesRain += newparticlesRain;
-        if (countParticlesRain >= CurrentParticlesRain - 30){
+        if (countParticlesRain >= CurrentParticlesRain){
             CurrentParticlesRain = rand()%2001;
-        } 
-
-        // Generate 10 new particule each millisecond,
-        // but limit this to 16 ms (60 fps), or if you have 1 long frame (1sec),
-        // newparticlesSmoke will be huge and the next frame even longer.
+        }    
+         
         int newparticlesSmoke = (int)(delta*10000.0);
         if (newparticlesSmoke > (int)(0.016f*10000.0))
             newparticlesSmoke = (int)(0.016f*10000.0);
+        if (!exhausting) newparticlesSmoke = 0;
         
         for (int i = 0; i < newparticlesSmoke; i++){
             int particleIndexSmoke = FindUnusedParticleSmoke();
@@ -482,9 +488,6 @@ int main( void )
 
             float spread = 1.5f;
             glm::vec3 maindirSmoke = glm::vec3(0.0f, 10.0f, 0.0f);
-            // Very bad way to generate a random direction; 
-            // See for instance http://stackoverflow.com/questions/5408276/python-uniform-spherical-distribution instead,
-            // combined with some user-controlled parameters (main direction, spread, etc)
             glm::vec3 randomdirSmoke = glm::vec3(
                 (rand()%2000 - 1000.0f)/1000.0f,
                 (rand()%2000 - 1000.0f)/1000.0f,
@@ -697,6 +700,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     static bool enter_pressed = false;
     static bool w_pressed = false;
     static bool d_pressed = false;
+    static bool s_pressed = false;
+    static bool r_pressed = false;
 
     if (key == GLFW_KEY_UP)
         up_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : up_pressed);
@@ -707,9 +712,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_LEFT)
         left_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : left_pressed);
     if (key == GLFW_KEY_W)
-        w_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : left_pressed);
+        w_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : w_pressed);
     if (key == GLFW_KEY_D)
-        d_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : left_pressed);
+        d_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : d_pressed);
+    if (key == GLFW_KEY_S)
+        s_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : s_pressed);
+    if (key == GLFW_KEY_R)
+        r_pressed = action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? 0 : r_pressed);
     
     if (up_pressed)
         rotateX -= 2.0;
@@ -740,4 +749,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             lum = 0.f;
         }
     }
+    if (s_pressed)
+        exhausting = !exhausting;
+    if (r_pressed)
+        raining = !raining;
 }
