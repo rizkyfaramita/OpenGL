@@ -487,7 +487,7 @@ int main( void )
             ParticlesContainerSmoke[particleIndexSmoke].pos = glm::vec3(-5.0f,-3.0f,-18.0f);
 
             float spread = 1.5f;
-            glm::vec3 maindirSmoke = glm::vec3(0.0f, 10.0f, 0.0f);
+            glm::vec3 maindirSmoke = glm::vec3(-10.0f, 0.0f, 0.0f);
             glm::vec3 randomdirSmoke = glm::vec3(
                 (rand()%2000 - 1000.0f)/1000.0f,
                 (rand()%2000 - 1000.0f)/1000.0f,
@@ -519,7 +519,7 @@ int main( void )
                 if (p.life > 0.0f){
 
                     // Simulate simple physics : gravity only, no collisions
-                    p.speed += glm::vec3(0.0f,-9.81f, 0.0f) * (float)delta * 0.5f;
+                    p.speed += glm::vec3(0.0f, 0.0f, 0.0f) * (float)delta * 0.5f;
                     p.pos -= p.speed * (float)delta;
                     p.cameradistance = glm::length2( p.pos - CameraPosition );
                     //ParticlesContainerSmoke[i].pos += glm::vec3(0.0f,10.0f, 0.0f) * (float)delta;
