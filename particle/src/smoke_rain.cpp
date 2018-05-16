@@ -12,9 +12,11 @@
 using namespace std;
 using namespace glm;
 GLFWwindow* window;
+
 #include "../common/shader.hpp"
 #include "../common/texture.hpp"
 #include "../common/controls.hpp"
+#include "../common/objloader.hpp"
 
 #include "mesh.hpp"
 #include "shader.hpp"
@@ -125,6 +127,12 @@ int FindUnusedParticleSmoke(){
 
 void SortParticlesSmoke(){
     std::sort(&ParticlesContainerSmoke[0], &ParticlesContainerSmoke[MaxParticlesSmoke]);
+}
+
+bool cmp(glm::vec3 a, glm::vec3 b){
+    pair<pair<float,float>, float> A = make_pair(make_pair(a.x,a.y),a.z);
+    pair<pair<float,float>, float> B = make_pair(make_pair(b.x,b.y),b.z);
+    return A < B;
 }
 
 int main( void )
@@ -279,10 +287,95 @@ int main( void )
     // Initialize with empty (NULL) buffer : it will be updated later, each frame.
     glBufferData(GL_ARRAY_BUFFER, MaxParticlesSmoke * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
 
+
+    // Load the texture
+    GLuint TextureCar = loadDDS("src/car.DDS");
+    
+    // Read our .obj file
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals;
+    bool res = loadOBJ("data/car.obj", vertices, uvs, normals);
+    if (!res){
+        puts("Error found, image not found");
+        return -1;
+    }
+
+
+    // ParticlesContainerSmoke[particleIndexSmoke].pos = glm::vec3(-5.0f,-3.0f,-18.0f);
+    // find left most first;
+
+    for (auto& it : vertices){
+        it += glm::vec3(-3, 3, 0);
+        swap(it.x, it.z);
+        it *= 0.2f;
+        it += glm::vec3(-2.35, 3.45f, -20);
+    }
+    // sort(vertices.begin(), vertices.end(), cmp);
+    glm::vec3 leftmost;
+    bool visited = 0;
+    for (auto& it : vertices){
+        cout << it.x << " " << it.y << " " << it.z << endl;
+        if (!visited){
+            visited = 1;
+            leftmost = it;
+        }
+        if (leftmost.x > it.x){
+            leftmost = it;
+        } else if (leftmost.x == it.x && leftmost.y > it.y){
+            leftmost = it;
+        } else if (leftmost.x == it.x && leftmost.y == it.y && leftmost.z > it.z){
+            leftmost = it;
+        }
+    }
+
+    // Translate
+    // glm::vec3 translate = glm::vec3(-5.0f,-3.0f,-18.0f) - leftmost;
+    // for (auto& it : vertices){
+    //     it += translate;
+    // }
+
+    GLuint vertexbuffer;
+    glGenBuffers(1, &vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+    GLuint uvbuffer;
+    glGenBuffers(1, &uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+
+
     double lastTime = glfwGetTime();
+    bool pressed;
+    float up, right;
     do {
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        pressed = 1;
+        right = up = 0;
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+            ++up;
+        } else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+            ++right;
+        } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+            --right;
+        } else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+            --up;
+        } else {
+            pressed = 0;
+        }
+
+        if (pressed){
+            for (auto& it : vertices){
+                it += glm::vec3(right/100.0f, up/100.0f, 0);
+            }
+            glGenBuffers(1, &vertexbuffer);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+            cout << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << endl;
+
+        }
 
         double currentTime = glfwGetTime();
         double delta = currentTime - lastTime;
@@ -292,6 +385,38 @@ int main( void )
         computeMatricesFromInputs();
         glm::mat4 ProjectionMatrix = getProjectionMatrix();
         glm::mat4 ViewMatrix = getViewMatrix();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, TextureCar);
+        // 1rst attribute buffer : vertices
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+        glVertexAttribPointer(
+            0,                  // attribute
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+
+        // 2nd attribute buffer : UVs
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+        glVertexAttribPointer(
+            1,                                // attribute
+            2,                                // size
+            GL_FLOAT,                         // type
+            GL_FALSE,                         // normalized?
+            0,                                // stride
+            (void*)0                          // array buffer offset
+        );
+
+        // Draw the triangle !
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
+
+
+
 
         // We will need the camera's position in order to sort the particles
         // w.r.t the camera's distance.
@@ -487,7 +612,7 @@ int main( void )
             ParticlesContainerSmoke[particleIndexSmoke].pos = glm::vec3(-5.0f,-3.0f,-18.0f);
 
             float spread = 1.5f;
-            glm::vec3 maindirSmoke = glm::vec3(-10.0f, 0.0f, 0.0f);
+            glm::vec3 maindirSmoke = glm::vec3(10.0f, 0.0f, 0.0f);
             glm::vec3 randomdirSmoke = glm::vec3(
                 (rand()%2000 - 1000.0f)/1000.0f,
                 (rand()%2000 - 1000.0f)/1000.0f,
