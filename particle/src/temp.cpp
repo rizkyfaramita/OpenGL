@@ -204,14 +204,16 @@ int main( void )
 
     // Create and compile our GLSL program from the shaders
     GLuint programID = LoadShaders( "src/Particle.vertexshader", "src/Particle.fragmentshader" );
+    GLuint programIDCar = LoadShaders( "src/vertex_shader.vs", "src/fragment_shader.fs" );
 
     // Vertex shader
     GLuint CameraRight_worldspace_ID  = glGetUniformLocation(programID, "CameraRight_worldspace");
     GLuint CameraUp_worldspace_ID  = glGetUniformLocation(programID, "CameraUp_worldspace");
     GLuint ViewProjMatrixID = glGetUniformLocation(programID, "VP");
-
+    
     // fragment shader
     GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
+    GLuint TextureIDCar  = glGetUniformLocation(programIDCar, "texture_diffuse1");
 
     static GLfloat* g_particule_position_size_data_rain = new GLfloat[MaxParticlesRain * 4];
     static GLubyte* g_particule_color_data_rain         = new GLubyte[MaxParticlesRain * 4];
@@ -386,9 +388,22 @@ int main( void )
         glm::mat4 ProjectionMatrix = getProjectionMatrix();
         glm::mat4 ViewMatrix = getViewMatrix();
 
+        // Use our shader
+        glUseProgram(programIDCar);
+
+        // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, TextureCar);
-        // 1rst attribute buffer : vertices
+        // Set our "myTextureSampler" sampler to use Texture Unit 0
+        glUniform1i(TextureIDCar, 0);
+
+                // Same as the billboards tutorial
+        glUniform3f(CameraRight_worldspace_ID, ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
+        glUniform3f(CameraUp_worldspace_ID   , ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
+
+        glUniformMatrix4fv(ViewProjMatrixID, 1, GL_FALSE, &ProjectionMatrix[0][0]);
+
+
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(
