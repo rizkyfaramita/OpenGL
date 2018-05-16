@@ -291,7 +291,7 @@ int main( void )
     // Load the texture
     GLuint TextureCar = loadDDS("src/car.DDS");
     
-    // Read our .obj file
+    // Read our .obj file for car
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
@@ -309,7 +309,7 @@ int main( void )
         it += glm::vec3(-3, 3, 0);
         swap(it.x, it.z);
         it *= 0.2f;
-        it += glm::vec3(-2.35, 3.45f, -20);
+        it += glm::vec3(-2.35, 3.45f, -17.5);
     }
     // sort(vertices.begin(), vertices.end(), cmp);
     glm::vec3 leftmost;
@@ -349,6 +349,7 @@ int main( void )
     double lastTime = glfwGetTime();
     bool pressed;
     float up, right;
+    glm::vec3 moved;
     do {
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -357,9 +358,9 @@ int main( void )
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
             ++up;
         } else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-            ++right;
-        } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
             --right;
+        } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+            ++right;
         } else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
             --up;
         } else {
@@ -367,14 +368,13 @@ int main( void )
         }
 
         if (pressed){
+            moved = glm::vec3(right/100.0f, up/100.0f, 0);
             for (auto& it : vertices){
-                it += glm::vec3(right/100.0f, up/100.0f, 0);
+                it += moved;
             }
             glGenBuffers(1, &vertexbuffer);
             glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-            cout << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << endl;
-
         }
 
         double currentTime = glfwGetTime();
